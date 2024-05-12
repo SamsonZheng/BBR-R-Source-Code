@@ -985,7 +985,7 @@
         }
 
         if ((bbr->mode == BBR_STARTUP || bbr->mode == BBR_DRAIN || bbr->mode == BBR_PROBE_RTT
-         || bbr ->pacing_gain > BBR_UNIT) 
+         || bbr->pacing_gain > BBR_UNIT || bbr->cycle_idx == 2) 
         && rs->rtt_us >= 0){
         bw1 =  bbr_bw(sk);
         }
