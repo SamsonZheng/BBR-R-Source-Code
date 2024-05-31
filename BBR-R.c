@@ -935,13 +935,10 @@
         {
         struct bbr *bbr = inet_csk_ca(sk);
 
-
         u64 bw1;
         u64 bw2;
 
         bbr_update_model(sk, rs);
-
-
 
         if (bbr->mode == BBR_PROBE_BW 
         && bbr ->pacing_gain <= BBR_UNIT && rs->rtt_us >= 0){
@@ -967,9 +964,7 @@
         if( adjusting_mode_is_on){
         min_rtt_for_adjusting = min_rtt_in_10_rounds_value;
         }
-
-
-
+      
         if (100 * rs->rtt_us >= 125 * min_rtt_for_adjusting){
         bw1 = lesser_factor_0_8 * bbr_bw(sk) >> BBR_SCALE;
         }
@@ -984,7 +979,6 @@
         else
         bw1 =  bbr_bw(sk);
         }
-
 
         if ((bbr->mode == BBR_STARTUP || bbr->mode == BBR_DRAIN || bbr->mode == BBR_PROBE_RTT
          || bbr ->pacing_gain > BBR_UNIT || bbr->cycle_idx == 3)  
@@ -1020,7 +1014,6 @@
 
         bbr->has_seen_rtt = 0;
         bbr_init_pacing_rate_from_rtt(sk);
-
         bbr->restore_cwnd = 0;
         bbr->round_start = 0;
         bbr->idle_restart = 0;
