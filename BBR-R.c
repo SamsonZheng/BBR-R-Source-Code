@@ -56,7 +56,7 @@
  * otherwise TCP stack falls back to an internal pacing using one high
  * resolution timer per TCP socket and may use more resources.
  */
-#include <linux/module.h>
+        #include <linux/module.h>
         #include <net/tcp.h>
         #include <linux/inet_diag.h>
         #include <linux/inet.h>
@@ -123,9 +123,10 @@
         #define CYCLE_LEN	8	/* number of phases in a pacing gain cycle */
 
 
+        // A single data point for our parameterized min-max tracker
         struct minmax_rtt_sample {
-        u32 t;	
-        u32 v;	
+        u32 t;	// time measurement was taken
+        u32 v;	// value measured
         };
 
         struct minmax_rtt {
@@ -139,9 +140,11 @@
         static bool adjusting_mode_is_on  =  0;                    
         static u32 required_rtt_cnt = 0;                           
         static u32 min_rtt_in_10_rounds_value;
+
         static const int required_rtt_win = CYCLE_LEN + 2;         
         static const int lesser_factor_0_8 = 0.8 * BBR_UNIT;
         static const int lesser_factor_0_9 = 0.95 * BBR_UNIT;
+
 
         /* Window length of bw filter (in rounds): */
         static const int bbr_bw_rtts = CYCLE_LEN + 2;
@@ -203,12 +206,12 @@
 
 
 
-        static inline u32 minmax_rtt_reset(struct minmax_rtt *m, u32 t, u32 meas)  
+        static inline u32 minmax_rtt_reset(struct minmax_rtt *m, u32 t, u32 meas) 
         {
         struct minmax_rtt_sample val = { .t = t, .v = meas };
 
         m->s[2] = m->s[1] = m->s[0] = val;
-        return m->s[0].v;    
+        return m->s[0].v;   
         }
 
         static inline void minmax_rtt_reset_2(struct minmax_rtt *m, u32 t, u32 meas)  
@@ -220,52 +223,51 @@
         }
 
 
-
-    
+        // As time advances, update the 1st, 2nd, and 3rd choices.
         static u32 minmax_rtt_subwin_update(struct minmax_rtt *m, u32 win,
-        const struct minmax_rtt_sample *val)         
+        const struct minmax_rtt_sample *val)     
         {
         u32 dt = val->t - m->s[0].t;
 
-        if (unlikely(dt > win)) {    
+        if (unlikely(dt > win)) {  
+       
         m->s[0] = m->s[1];
         m->s[1] = m->s[2];
         m->s[2] = *val;
-        if (unlikely(val->t - m->s[0].t > win)) {     
+        if (unlikely(val->t - m->s[0].t > win)) {    
         m->s[0] = m->s[1];
         m->s[1] = m->s[2];
         m->s[2] = *val;
         }
         } else if (unlikely(m->s[1].t == m->s[0].t) && dt > win/4) {
-        m->s[2] = m->s[1] = *val;           
-        } else if (unlikely(m->s[2].t == m->s[1].t) && dt > win/2) { 
-        m->s[2] = *val;           
+
+        m->s[2] = m->s[1] = *val;          
+        } else if (unlikely(m->s[2].t == m->s[1].t) && dt > win/2) {  
+ 
+
+        m->s[2] = *val;             
         }
-        return m->s[0].v;    
+        return m->s[0].v;   
         }
 
 
-   
+    
         static u32 minmax_rtt_running_min(struct minmax_rtt *m, u32 win, u32 t, u32 meas)
         {
         struct minmax_rtt_sample val = { .t = t, .v = meas };
 
-        if (unlikely(val.v <= m->s[0].v) ||	   
-        unlikely(val.t - m->s[2].t > win))	  
-        return minmax_rtt_reset(m, t, meas);       
+        if (unlikely(val.v <= m->s[0].v) ||	  
+        unlikely(val.t - m->s[2].t > win))	 
+        return minmax_rtt_reset(m, t, meas);     
 
-        if (unlikely(val.v <= m->s[1].v))      
-        m->s[2] = m->s[1] = val;               
+        if (unlikely(val.v <= m->s[1].v))    
+        m->s[2] = m->s[1] = val;              
 
         else if (unlikely(val.v <= m->s[2].v)) 
         m->s[2] = val;                        
 
         return minmax_rtt_subwin_update(m, win, &val);
         }
-
-
-
-
 
 
         /* Do we estimate that STARTUP filled the pipe? */
@@ -542,8 +544,10 @@
 
 
         bool is_full_length =
-        tcp_stamp_us_delta(tp->delivered_mstamp, bbr->cycle_mstamp) >
-        min_rtt_for_adjusting;
+        tcp_stamp_us_delta(tp->delivered_mstamp, bbr->cycle_mstamp) > min_rtt_for_adjusting;
+
+
+
 
         u32 inflight, bw;
 
@@ -564,6 +568,7 @@
         if (bbr->pacing_gain > BBR_UNIT)
         return is_full_length &&
         (rs->losses ||  /* perhaps pacing_gain*BDP won't fit */
+      //   inflight >= bbr_target_cwnd(sk, bw, bbr->pacing_gain));
         inflight > bbr_target_cwnd(sk, bw, bbr->pacing_gain));                       
 
         /* A pacing_gain < 1.0 tries to drain extra queue we added if bw
@@ -614,6 +619,8 @@
         bbr->mode = BBR_PROBE_BW;
         bbr->pacing_gain = BBR_UNIT;
         bbr->cwnd_gain = bbr_cwnd_gain;
+        // bbr->cycle_idx = CYCLE_LEN - 1 - prandom_u32_max(bbr_cycle_rand);
+   
          bbr->cycle_idx = 1;
         bbr_advance_cycle_phase(sk);	/* flip to next phase of gain cycle */
         }
@@ -793,7 +800,6 @@
         if (!rs->is_app_limited || bw >= bbr_max_bw(sk)) {
         /* Incorporate new sample into our max bw filter. */
         minmax_running_max(&bbr->bw, bbr_bw_rtts, bbr->rtt_cnt, bw);
-
         }
         }
 
@@ -870,7 +876,7 @@
         bbr->min_rtt_stamp + bbr_min_rtt_win_sec * HZ);
         
         if (rs->rtt_us >= 0 &&
-   
+        // (100 * rs->rtt_us < 105 * bbr->min_rtt_us || filter_expired)) {
         (rs->rtt_us - bbr->min_rtt_us < 10000 || filter_expired)) {    
         bbr->min_rtt_stamp = tcp_jiffies32;
         }
@@ -894,7 +900,6 @@
         tp->app_limited =
         (tp->delivered + tcp_packets_in_flight(tp)) ? : 1;
         /* Maintain min packets in flight for max(200 ms, 1 round). */
-
         if (!bbr->probe_rtt_done_stamp &&
         tcp_packets_in_flight(tp) <= bbr_cwnd_min_target) {
         bbr->probe_rtt_done_stamp = tcp_jiffies32 +
@@ -902,10 +907,8 @@
         bbr->probe_rtt_round_done = 0;
         bbr->next_rtt_delivered = tp->delivered;
         } else if (bbr->probe_rtt_done_stamp) {
-
         if (bbr->round_start)
         bbr->probe_rtt_round_done = 1;
-
         if (bbr->probe_rtt_round_done &&
         after(tcp_jiffies32, bbr->probe_rtt_done_stamp)) {
         bbr->min_rtt_stamp = tcp_jiffies32;
@@ -947,7 +950,7 @@
         min_rtt_for_adjusting = bbr->min_rtt_us;        
         adjusting_mode_is_on  =  0;                     
         required_rtt_cnt = 0;                           
-        min_rtt_in_10_rounds_value = -1;                       
+        min_rtt_in_10_rounds_value = -1;                        
         minmax_rtt_reset_2(&min_rtt_in_10_rounds,0, -1);        
         }
 
@@ -971,21 +974,20 @@
         bw1 = lesser_factor_0_8 * bbr_bw(sk) >> BBR_SCALE;
         }
         else if ( !adjusting_mode_is_on &&
-        100 * rs->rtt_us < 125 * min_rtt_for_adjusting &&
-        100 * rs->rtt_us >= 105 * min_rtt_for_adjusting){
+        100 * rs->rtt_us < 125 * min_rtt_for_adjusting && 100 * rs->rtt_us >= 105 * min_rtt_for_adjusting){
         bw1 =  lesser_factor_0_9 * bbr_bw(sk) >> BBR_SCALE;
         }
         else if ( adjusting_mode_is_on &&
-        100 * rs->rtt_us < 125 * min_rtt_for_adjusting &&
-        rs->rtt_us >  min_rtt_for_adjusting){       
+        100 * rs->rtt_us < 125 * min_rtt_for_adjusting && rs->rtt_us >  min_rtt_for_adjusting){      
         bw1 =  lesser_factor_0_9 * bbr_bw(sk) >> BBR_SCALE;
         }
         else
         bw1 =  bbr_bw(sk);
         }
 
+
         if ((bbr->mode == BBR_STARTUP || bbr->mode == BBR_DRAIN || bbr->mode == BBR_PROBE_RTT
-         || bbr->pacing_gain > BBR_UNIT || bbr->cycle_idx == 2) 
+         || bbr ->pacing_gain > BBR_UNIT || bbr->cycle_idx == 3)  
         && rs->rtt_us >= 0){
         bw1 =  bbr_bw(sk);
         }
@@ -1099,7 +1101,6 @@
         .flags		= TCP_CONG_NON_RESTRICTED,
         .name		= "bbr_r", 
         .owner		= THIS_MODULE, 
-        .init		= bbr_init,
         .cong_control	= bbr_main,
         .sndbuf_expand	= bbr_sndbuf_expand,
         .undo_cwnd	= bbr_undo_cwnd,
@@ -1130,4 +1131,4 @@
         MODULE_AUTHOR("Soheil Hassas Yeganeh <soheil@google.com>");
         MODULE_AUTHOR("Songsong Zheng <ssz_work@163.com>");
         MODULE_LICENSE("Dual BSD/GPL");
-        MODULE_DESCRIPTION("TCP BBR-R (Bottleneck Bandwidth and RTT- Revision)");
+        MODULE_DESCRIPTION("TCP BBR-R (Bottleneck Bandwidth and RTT-Revised)");
