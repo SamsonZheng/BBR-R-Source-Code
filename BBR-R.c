@@ -619,9 +619,9 @@
         bbr->mode = BBR_PROBE_BW;
         bbr->pacing_gain = BBR_UNIT;
         bbr->cwnd_gain = bbr_cwnd_gain;
-        // bbr->cycle_idx = CYCLE_LEN - 1 - prandom_u32_max(bbr_cycle_rand);
+        bbr->cycle_idx = CYCLE_LEN - 1 - prandom_u32_max(bbr_cycle_rand);
    
-         bbr->cycle_idx = 1;
+         // bbr->cycle_idx = 1;
         bbr_advance_cycle_phase(sk);	/* flip to next phase of gain cycle */
         }
 
