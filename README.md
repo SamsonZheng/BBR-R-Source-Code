@@ -7,7 +7,7 @@ os : Ubuntu 20/18，linux kernel-4.146-mptcp
 
 ### clone the repo
 ```
-git clone https://github.com/opendev2020/tcp_ql.git
+git clone https://github.com/SamsonZheng/BBR-R-Source-Code.git
 ```
 
 ### build
@@ -17,7 +17,7 @@ make all
 
 ### insert the module
 ```
-sudo insmod tcp_satcc.ko
+sudo insmod bbr_r.ko
 ```
 
 ### set satcc as the current congestion control algorithm
