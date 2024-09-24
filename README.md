@@ -1,5 +1,4 @@
-The paper related to this code has been accepted by the conference Computer Networks.
-If you want to personally try injecting BBR-R into the Linux kernel and test its performance, you can follow the instructions below.
+The paper related to this code has been accepted by the conference Computer Networks.  If you would like to personally try injecting BBR-R into the Linux kernel and test its performance, you can follow the instructions below.
 
 # BBR-R
 ## Envs
