@@ -4,28 +4,28 @@ If you want to personally try injecting BBR-R into the Linux kernel and test its
 ：)
 
 # BBR-R
-## Envs
-os : Ubuntu 20/18，linux kernel-4.146-mptcp
+## Environments
+OS: Ubuntu 20/18，Linux kernel-4.146-mptcp
 
 ## Usage
 
-### clone the repo
+### Clone the repo
 ```
 git clone https://github.com/SamsonZheng/BBR-R-Source-Code.git
 ```
 
-### compile
+### Compile
 ```
 cd BBR-R
 make all
 ```
 
-### insert the module
+### Insert the module
 ```
 sudo insmod bbr_r.ko
 ```
 
-### set bbr-r as the current congestion control algorithm
+### Set bbr-r as the current congestion control algorithm
 ```
 sysctl net.ipv4.tcp_congestion_control=bbr_r
 ```
