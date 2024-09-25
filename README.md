@@ -7,14 +7,14 @@ If you want to personally try injecting BBR-R into the Linux kernel and test its
 ## Envs
 os : Ubuntu 20/18，linux kernel-4.146-mptcp
 
-## usage
+## Usage
 
 ### clone the repo
 ```
 git clone https://github.com/SamsonZheng/BBR-R-Source-Code.git
 ```
 
-### build
+### compile
 ```
 cd BBR-R
 make all
