@@ -25,7 +25,7 @@ make all
 sudo insmod bbr_r.ko
 ```
 
-### Set bbr-r as the current congestion control algorithm
+### Set BBR-R as the current congestion control algorithm
 ```
 sysctl net.ipv4.tcp_congestion_control=bbr_r
 ```
