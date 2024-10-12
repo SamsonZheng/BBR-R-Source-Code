@@ -1,9 +1,12 @@
-The paper related to this code has been accepted by the conference Computer Networks.  
+The paper related to this code has been accepted by the SCI Q2 journal Computer Networks.  
 
 If you want to personally try injecting BBR-R into the Linux kernel and test its performance, you can follow the instructions below.  
 ：)
 
-# BBR-R
+## Citation
+Zheng, Songsong, et al. "BBR-R: Improving BBR performance in multi-flow competition scenarios." Computer Networks (2024): 110816.
+
+
 ## Envs
 OS: Ubuntu 20/18，Linux kernel-4.146-mptcp
 
@@ -29,3 +32,6 @@ sudo insmod bbr_r.ko
 ```
 sysctl net.ipv4.tcp_congestion_control=bbr_r
 ```
+
+
+
